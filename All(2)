@@ -1,0 +1,468 @@
+import threading
+import time
+
+
+# """``````````fffffff
+# ````````ffffff1ff
+# ``````ffffffff|ff
+# `````fff5-4-3-2ff
+# ````ffff|fffff|ff
+# ```fff7-6-8-9-10f
+# ``ffff|fffff|ffff
+# ``ffff14-13-12-11
+# ``fffffffffffffff
+#
+#  * = You, f = Forest, ` = Water"""
+
+
+class NPC(object):
+    def __init__(self,vname,health,damage,description, xp, hostile, dead, speed,loot):
+        self.vname = vname
+        self.health = health
+        self.damage = damage
+        self.description = description
+        self.xp = xp
+        self.hostile = hostile
+        self.dead = dead
+        self.speed = speed
+        self.loot = loot
+
+
+class Weapon(object):
+    def __init__(self,vname,damage,speed,rarity,value,weight):
+        self.vname = vname
+        self.damage = damage
+        self.speed = speed
+        self.rarity = rarity
+        self.value = value
+        self.weight = weight
+
+
+class Spoils(object):
+    def __init__(self,vname,value,weight):
+        self.vname = vname
+        self.value = value
+        self.weight = weight
+
+
+ssword = Weapon("Steel Sword",4,0,"Common",10,9)
+sdag = Weapon("A small dagger",3,1,"Common",7,6)
+stick = Weapon("A small stick",1,0,"Common",0,10)
+killstick = Weapon("Huge stick for testing",15,0,"common",0,0)
+
+ccrown = Spoils("A Diamond and ruby encrusted crown",50,20)
+
+rat1 = NPC("Young Rat",5,1,"A hissing juvenile rat with matted fur",2, False,False,4,[])
+rat2 = NPC("Adult Rat", 9,3,"A fully grown adult rat",5,False,False,4,[ssword])
+rat3 = NPC("Rat Matriarch", 14,5,"A huge rat matriarch wearing a golden, jeweled crown",5,True,False,3,[ccrown])
+
+
+loc = 'beg1'
+inv = [stick]
+vinv = []
+
+balance = 3
+wielded = []
+maxHealth = 50
+playerHealth = 50
+incap = False
+
+
+locations = {
+    "beg1": {
+        "description": "You are at the northernmost point in a shaded forest.",
+        "exits": {"S": "beg2"},
+        "interact": {},
+        "items": [],
+        "enemies": [rat1,rat1],
+        "maps": """``````````fffffff
+````````ffffff*ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg2": {
+        "description": "You are in a shaded forest.",
+        "exits": {"S": "beg10","W": "beg3","N": "beg1"},
+        "interact": {},
+        "enemies": [],
+        "items": [sdag],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-*ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg3": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W":"beg4","E": "beg2",},
+        "interact": {},
+        "enemies": [rat1],
+        "items": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-*-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg4": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg5", "E": "beg3"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-*-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg5": {
+        "description": "You are in a shaded forest.",
+        "exits": {"S": "beg6", "E": "beg4"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff*-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg6": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg7","N": "beg5", "E": "beg8"},
+        "items": [],
+        "enemies": [rat2],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-*-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg7": {
+        "description": "You are in a shaded forest.",
+        "exits": {"S": "beg14", "E": "beg6"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff*-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg8": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg6", "E": "beg9"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-*-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg9": {
+        "description": "You are in a shaded forest.",
+        "exits": {"S": "beg11","W": "beg8", "E": "beg10"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-*-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg10": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg9","N": "beg2"},
+        "items": [],
+        "enemies": [rat2],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-*ff
+``ffff|fffff|ffff
+``ffff0-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg11": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg12","N": "beg9"},
+        "items": {},
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-0-*ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg12": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg13","E": "beg11"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-0-*-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg13": {
+        "description": "You are in a shaded forest.",
+        "exits": {"W": "beg14", "E": "beg12"},
+        "items": [],
+        "enemies": [],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff0-*-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+        "beg14": {
+        "description": "You are in a shaded forest.",
+        "exits": {"N": "beg7", "E": "beg13"},
+        "items": [],
+        "enemies": [rat3],
+        "maps": """``````````fffffff
+````````ffffff0ff
+``````ffffffff|ff
+`````fff0-0-0-0ff
+````ffff|fffff|ff
+```fff0-0-0-0-0ff
+``ffff|fffff|ffff
+``ffff*-0-0-0ffff
+``fffffffffffffff
+
+ * = You, f = Forest, ` = Water"""},
+}
+
+
+
+def playerAttack(target):
+    for i in locations[loc]["enemies"]:
+        if target in str(i.vname).lower():
+            if not i.dead:
+                global balance
+                print("You attack", i.vname, "enemy health:",i.health)
+                i.health -= wielded[0].damage
+                if i.health <= 0:
+                    i.dead = True
+                    print("You've slain",i.vname,"!")
+                    locations[loc]["enemies"].remove(i)
+                    if i.loot != []:
+                        for j in i.loot:
+                            print(i.vname,"drops",j.vname)
+                            locations[loc]["items"].append(j)
+                time.sleep(balance-wielded[0].speed)
+
+
+def npcattack():
+    global playerHealth
+    for npc in locations[loc]["enemies"]:
+        while npc.hostile and not npc.dead:
+            print(npc.vname,"attacks!")
+            playerHealth -= i.damage
+            time.sleep(npc.speed)
+
+def rest():
+    global playerHealth
+    global maxHealth
+    global incap
+    incap = True
+    print("You sit down to rest.")
+    while playerHealth < maxHealth:
+        playerHealth += 5
+        if playerHealth > maxHealth:
+            playerHealth = maxHealth
+        print(playerHealth)
+        time.sleep(3)
+    print("You've fully recovered.")
+    incap = False
+
+p = threading.Thread(target=playerAttack)
+n = threading.Thread(target=npcattack)
+r = threading.Thread(target=rest)
+scribed = False #Variable to show whether or not we've printed info about the location. (Otherwise info would be printed after every action)
+
+while True:
+    while playerHealth > 0:
+        availableExits = ", ".join(locations[loc]["exits"].keys())
+        availableItems = []
+        for i in locations[loc]["items"]:
+            availableItems.append(i.vname)
+        enemiesHere = locations[loc]["enemies"]
+
+        if not scribed: #If we haven't printed the description/items/enemies:
+
+            print(locations[loc]["description"])
+            print("Available exits are " + availableExits + " \n".upper())
+            if enemiesHere != []:
+                print("There are",len(enemiesHere),"enemies here:",', '.join(enemy.description for enemy in locations[loc]["enemies"]))
+            if availableItems != []:
+                print("The items here are :",str(availableItems))
+            scribed = True
+
+    #If enemies in location are hostile, thread and run the npcattack function
+        for i in locations[loc]["enemies"]:
+            if i.hostile and not n.is_alive():
+                try:
+                    n.start()
+                except RuntimeError: #occurs if thread is dead
+                    n = threading.Thread(target=npcattack) #create new instance if thread is dead
+                    n.start() #start thread
+    #Our input
+        com = input(str(playerHealth)+">\n")
+    #Map
+        if com == "map":
+            print(locations[loc]["maps"])
+    #Strike
+        if not incap:
+            if 'strike' in com:
+                try:
+                    if not incap:
+                        target = str(com.split(' ')[1]).lower()
+                        if wielded != []:
+                            for i in locations[loc]["enemies"]:
+                                if str(target).lower() in str(i.vname).lower():
+                                    i.hostile = True
+                                    if i.hostile and not n.is_alive():
+
+                                        try:
+                                            n.start()
+                                        except RuntimeError: #occurs if thread is dead
+                                            n = threading.Thread(target=npcattack) #create new instance if thread is dead
+                                            n.start() #start thread
+                            if not p.is_alive():
+                                try:
+                                    p = threading.Thread(target=playerAttack(target))
+                                    p.start()
+                                except RuntimeError: #occurs if thread is dead
+                                    p = threading.Thread(target=playerAttack(target)) #create new instance if thread is dead
+                                    p.start()
+                        else:
+                            print("You're not wielding a weapon!")
+                except:
+                    print("Strike what?")
+
+     #Movement
+            if com.upper() in locations[loc]["exits"]:
+                loc = locations[loc]["exits"][com.upper()]
+                scribed = False
+        else:
+            print("You can't do that right now.")
+
+    #Look
+        if "look" in com:
+            print(locations[loc]["description"])
+            print("Available exits are " + availableExits + " \n".upper())
+            if enemiesHere != []:
+                print("There are enemies here:",', '.join(rat.vname for rat in locations[loc]["enemies"]))
+            if availableItems != []:
+                print("The items here are :",str(availableItems))
+    #Get
+        if "get" in com:
+            try:
+                target = str(com.split(' ')[1]).lower()
+                for i in locations[loc]["items"]:
+                    if target in i.vname.lower():
+                        locations[loc]["items"].remove(i)
+                        inv.append(i)
+                        print("You pick up " + str(i.vname))
+            except:
+                print("Get what?")
+    #Wield
+        if "wield" in com:
+            target = str(com.split(' ')[1]).lower()
+            for i in inv:
+                if target in str(i.vname.lower()):
+                    wielded.append(i)
+                    print("You wield ",i.vname," in your right hand.")
+                    inv.remove(i)
+
+    #Remove, Unwield
+        if "remove" in com:
+            if wielded != []:
+                for i in wielded:
+                    wielded.remove(i)
+                    inv.append(i)
+                    print("You put",i.vname,"back into your pack.")
+    #Inventory
+        if com == "inv":
+            if wielded == []:
+                print("""You aren't wielding any weapons.""")
+            if wielded != [] :
+                print("You're currently wielding: ",', '.join(i.vname for i in wielded))
+            print("You have " ,', '.join(i.vname for i in inv)," in your inventory.")
+    #Rest
+        if com.lower() == "rest":
+            r = threading.Thread(target=rest)
+            r.start()
+        if "inspect" in com.lower():
+            item = str(com.split(' ')[1]).lower()
+            for i in inv:
+                if item in i.vname.lower():
+                    print(i.vname+':','\nDamage:',i.damage,"\nSpeed:",i.speed,"\nRarity:",i.rarity,"\nWeight:",i.weight)
+    print("You died.")
+    exit()
