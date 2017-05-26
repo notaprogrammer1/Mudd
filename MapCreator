@@ -1,0 +1,46 @@
+import random
+
+
+map = """ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffff0fffffffffff
+fffffffffffffffff/ffffffffffff
+ffffffffffff0-0-0fffffffffffff
+ffffffffffff|fffffffffffffffff
+ffffffffffff0fffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+"""
+y = 1
+x = 1
+n = []
+z = []
+
+axx = 1
+
+for i in map:
+    x += 1
+    axx += 1
+    if str(i) == str('\n'):
+        axx = 0
+        y += 1
+    if str(i) == str(0):
+        z.append((i+str(random.randint(0, 50000))+' y axis: '+str(y) + ' x axis: '+str(axx)))
+print(z)
+# notso = []
+# for i in z:
+#     x = str(i).split()
+#     #produces example: x = ['036263', 'y', 'axis:', '7', 'x', 'axis:', '13']
+#     temp = x[0],x[3],x[6]
+#     notso.append(temp)
+#     #print(temp)
+# print(notso)
+# for i in notso:
+#     if i[1] == i[1]:
+#         print(i[1], i[1])
