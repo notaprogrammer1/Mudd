@@ -1,0 +1,20 @@
+To do:
+  add Experience system:
+  
+  
+    def levelUp():
+    global playerHealth
+    global maxHealth
+    global playerLevel
+    maxHealth += 10
+    playerHealth = maxHealth
+    print("Your experiences in this world make you stronger.")
+    
+    
+    In the main code, have logic for:
+      when XP percentage is reached:
+        levelUp()
+        
+    Add currentExp and playerLevel variables
+      inside of playerAttack():
+        add currentExp += i.xp
