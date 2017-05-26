@@ -49,7 +49,7 @@ class Spoils(object):
 
 ssword = Weapon("Steel Sword",4,0,"Common",10,9)
 sdag = Weapon("A small dagger",3,1,"Common",7,6)
-stick = Weapon("A small stick",1,0,"Common",0,10)
+stick = Weapon("A small sharp stick",2,0,"Common",0,10)
 killstick = Weapon("Huge stick for testing",15,0,"common",0,0)
 
 ccrown = Spoils("A Diamond and ruby encrusted crown",50,20)
@@ -61,7 +61,7 @@ rat5 = NPC("Young Rat",5,1,"A hissing juvenile rat with matted fur",20, False,Fa
 rat6 = NPC("Adult Rat", 9,3,"A fully grown adult rat",30,False,False,4,[ssword])
 
 loc = 'beg1'
-inv = [sdag]
+inv = [stick]
 vinv = []
 
 #Experience
@@ -73,13 +73,13 @@ skillPoints = 0
 
 
 #Class Category
-knight = 1
+knight = 0
 mage = 0
 
 
 
 balance = 3
-wielded = [ssword]
+wielded = []
 maxHealth = 50
 playerHealth = 50
 incap = False
