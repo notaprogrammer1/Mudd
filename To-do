@@ -1,20 +1,11 @@
 To do:
-  add Experience system:
-  
-  
-    def levelUp():
-    global playerHealth
-    global maxHealth
-    global playerLevel
-    maxHealth += 10
-    playerHealth = maxHealth
-    print("Your experiences in this world make you stronger.")
-    
-    
-    In the main code, have logic for:
-      when XP percentage is reached:
-        levelUp()
-        
-    Add currentExp and playerLevel variables
-      inside of playerAttack():
-        add currentExp += i.xp
+#  add Experience system:
+#  add Class system
+#  add Class abilities
+
+debug needed:
+  Can skewer enemy and leave, but:
+          File "game.py", line 391, in subWait
+          locations[loc]["enemies"].remove(i)
+      ValueError: list.remove(x): x not in list
+   Also, when you skewer an enemy and leave, they still attack you lol
