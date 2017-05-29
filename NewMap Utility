@@ -8,8 +8,8 @@ ffffffffffffffffffffffffffffff
 ffffffffffffffffff0fffffffffff
 fffffffffffffffff/ffffffffffff
 ffffffffffff0-0-0fffffffffffff
-ffffffffffff|fffffffffffffffff
-ffffffffffff0fffffffffffffffff
+ffffffffffff|ffff\ffffffffffff
+ffffffffffff0fffff0fffffffffff
 ffffffffffffffffffffffffffffff
 ffffffffffffffffffffffffffffff
 ffffffffffffffffffffffffffffff
@@ -19,23 +19,45 @@ ffffffffffffffffffffffffffffff
 """
 y = 1
 x = 1
-lz = []
-nz = []
-axx = 1
 
+nz = []
+nd = []
 
 for i in map:
     x += 1
     if i == str('\n'):
         y += 1
-    if i == str(0):
-        j = x,y
-        nz.append(j)
-print(nz)
-for m in nz:
-    for n in nz:
-        if m[0] == n[0]+2:
-            print(n,"has an exit: east")
-    for n in nz:
-        if m[0] == n[0]-2:
-            print(n,"has an exit: west")
+        x = 1
+    j = x, y
+    if str(i.encode()) in (str(b'\x0c'),str(b'|'),str(b'/'),str(b'-')):
+        nd.append([i,j])
+    if i ==str(0):
+        nz.append([random.randint(1000,5000),j])
+
+print('NZ',nz)
+print('nD',nd,'\n')
+
+
+for i in nz:
+    for j in nd:
+        if j[1][0] == i[1][0]-1 and j[1][1] == i[1][1]:
+            print('location',i,'has an exit to the west')
+print('-'*40)
+for i in nz:
+    for j in nd:
+        if j[1][0] == i[1][0]+1 and j[1][1] == i[1][1]:
+            print('location',i,'has an exit to the east')
+print('-'*40)
+for i in nz:
+    for j in nd:
+        if j[1][1]== i[1][1]-1 and j[1][0] == i[1][0]:
+            print('location',i,'has an exit to the north')
+print('-'*40)
+for i in nz:
+    for j in nd:
+        if j[1][1]== i[1][1]+1 and j[1][0] == i[1][0]:
+            print('location',i,'has an exit to the south')
+            # for m in nz:
+            #     for n in nz:
+            #         if j[1][1] == i[1][1] + 1 and j[1][0] == i[1][0]:
+print('-'*40)
