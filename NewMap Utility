@@ -1,0 +1,41 @@
+import random
+
+
+map = """ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffff0fffffffffff
+fffffffffffffffff/ffffffffffff
+ffffffffffff0-0-0fffffffffffff
+ffffffffffff|fffffffffffffffff
+ffffffffffff0fffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+ffffffffffffffffffffffffffffff
+"""
+y = 1
+x = 1
+lz = []
+nz = []
+axx = 1
+
+
+for i in map:
+    x += 1
+    if i == str('\n'):
+        y += 1
+    if i == str(0):
+        j = x,y
+        nz.append(j)
+print(nz)
+for m in nz:
+    for n in nz:
+        if m[0] == n[0]+2:
+            print(n,"has an exit: east")
+    for n in nz:
+        if m[0] == n[0]-2:
+            print(n,"has an exit: west")
